@@ -1,15 +1,23 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var app = express();
 
 app.use('/static', express.static('public'));
-app.set('view engine', 'ejs')
+app.use(express.urlencoded({ extended: true }))
+app.set('view engine', 'ejs');
 
-app.get('/hello', function(req, res){
-    res.send('Hello world');
-})
+const mongoDB = 'mongodb+srv://lee_austin:IDngku4bcpIALVPC@cluster0.88oaz3q.mongodb.net/?retryWrites=true&w=majority';
+mongoose.connect(mongoDB);
+mongoose.Promise = global.Promise;
+let db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDb connection error: '))
 
 app.get('/', function(req, res){
     res.render('todo.ejs');
+})
+
+app.post('/', (req, res) => {
+    console.log(req.body.content);
 })
 
 app.listen(3000, function(){
