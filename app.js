@@ -46,24 +46,23 @@ app.post('/', (req, res) => {
 app.put('/', (req, res) => {
     let id = req.body.id;
     let err = null
-    console.log(req.body)
-    // if(typeof id === "string"){
-    //     Todo.updateOne({_id: id}, {done: true}, function(error){
-    //         if(error) {
-    //             console.log(error)
-    //             err = error
-    //         }
-    //     })
-    // } else if (typeof id === "object") {
-    //     id.forEach( ID => {
-    //         Todo.updateOne({_id: id}, {done: true}, function(error){
-    //             if(error) {
-    //                 console.log(error)
-    //                 err = error
-    //             }
-    //         })
-    //     })
-    // }
+    if(typeof id === "string"){
+        Todo.updateOne({_id: id}, {done: true}, function(error){
+            if(error) {
+                console.log(error)
+                err = error
+            }
+        })
+    } else if (typeof id === "object") {
+        id.forEach( ID => {
+            Todo.updateOne({_id: id}, {done: true}, function(error){
+                if(error) {
+                    console.log(error)
+                    err = error
+                }
+            })
+        })
+    }
     if(err) {
         res.json({"Error: ": err})
     } else {
@@ -72,7 +71,7 @@ app.put('/', (req, res) => {
 })
 
 app.delete('/', (req, res) => {
-    let id = req.body.check;
+    let id = req.body.id;
     let err = {}
     if(typeof id === "string"){
         Todo.deleteOne({_id: id}, function(error){
