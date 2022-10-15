@@ -1,5 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
+var axios = require('axios');
 var app = express();
 const bodyParser = require('body-parser');
 
@@ -17,18 +18,21 @@ let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDb connection error: '))
 
 app.get('/', function(req, res){
-    Todo.find(function(err, todo){
-        console.log(todo);
-        if(err){
-            res.json({"Error: ": err})
-        } else {
-            res.render('todo.ejs', {todoList: todo});
-        }
+    axios.get('https://xkcd.com/info.0.json').then(function(response){
+        Todo.find(function(err, todo){
+            if(err){
+                res.json({"Error: ": err})
+            } else {
+                res.render('todo.ejs', {todoList: todo, comicData: response.data});
+            }
+        })
+    }).catch(function(error){
+        res.json({'Error: ': error})
     })
 })
 
 // Creates item in DB
-app.post('/', (req, res) => {
+app.post('/create', (req, res) => {
     let newTodo = new Todo({
         todo: req.body.content,
         done: false
@@ -43,7 +47,7 @@ app.post('/', (req, res) => {
 })
 
 // Modifies item in DB
-app.put('/', (req, res) => {
+app.put('/done', (req, res) => {
     let id = req.body.id;
     let err = null
     if(typeof id === "string"){
@@ -70,9 +74,9 @@ app.put('/', (req, res) => {
     }
 })
 
-app.delete('/', (req, res) => {
-    let id = req.body.id;
-    let err = {}
+app.delete('/delete/:id', (req, res) => {
+    let id = req.params.id;
+    let err;
     if(typeof id === "string"){
         Todo.deleteOne({_id: id}, function(error){
             if(error) {
